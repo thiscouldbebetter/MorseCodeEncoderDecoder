@@ -1,0 +1,164 @@
+<html>
+<body>
+
+<div id="divUi">
+
+	<h3>Morse Code Encoder/Decoder</h3>
+
+	<p>Enter text and click the buttons to encode letters as Morse Code and back.</p>
+
+	<div>
+		<label>Message as Letters:</label>
+		<br />
+		<textarea id="textareaMessageAsLetters" cols="40" rows="8">
+Now is the time for all good men to come to the aid of their country.
+		</textarea>
+	</div>
+
+	<div>
+		<button onclick="buttonEncodeLettersAsMorseCode_Clicked()">v Encode v</button>
+		<button onclick="buttonDecodeMorseCodeAsLetters_Clicked()">^ Decode ^</button>
+	</div>
+
+	<div>
+		<label>Message as Morse Code:</label>
+		<br />
+		<textarea id="textareaMessageAsMorseCode" cols="40" rows="8"></textarea>
+	</div>
+
+</div>
+
+<script type="text/javascript">
+
+// UI event handlers.
+
+function buttonDecodeMorseCodeAsLetters_Clicked()
+{
+	var d = document;
+
+	var textareaMessageAsMorseCode =
+		d.getElementById("textareaMessageAsMorseCode");
+	var messageAsMorseCode = textareaMessageAsMorseCode.value;
+
+	var encoderDecoder = new MorseCodeEncoderDecoder();
+	var messageAsLetters =
+		encoderDecoder.decodeMorseCodeAsLetters(messageAsMorseCode);
+
+	var textareaMessageAsLetters =
+		d.getElementById("textareaMessageAsLetters");
+	textareaMessageAsLetters.value = messageAsLetters;
+}
+
+function buttonEncodeLettersAsMorseCode_Clicked()
+{
+	var d = document;
+
+	var textareaMessageAsLetters =
+		d.getElementById("textareaMessageAsLetters");
+	var messageAsLetters = textareaMessageAsLetters.value;
+
+	var encoderDecoder = new MorseCodeEncoderDecoder();
+	var messageAsMorseCode =
+		encoderDecoder.encodeLettersAsMorseCode(messageAsLetters);
+
+	var textareaMessageAsMorseCode =
+		d.getElementById("textareaMessageAsMorseCode");
+	textareaMessageAsMorseCode.value = messageAsMorseCode;
+}
+
+// Classes.
+
+class MorseCodeEncoderDecoder
+{
+	constructor()
+	{
+		var letterMorseCodeSequencePairs =
+		[
+			[ " ", "    " ],
+
+			[ "A", ".-" ],
+			[ "B", "-..." ],
+			[ "C", "-.-." ],
+			[ "D", "-.." ],
+			[ "E", "." ],
+			[ "F", "..-." ],
+			[ "G", "--." ],
+			[ "H", "...." ],
+			[ "I", ".." ],
+			[ "J", ".---" ],
+			[ "K", "-.-" ],
+			[ "L", ".-.." ],
+			[ "M", "--" ],
+			[ "N", "-." ],
+			[ "O", "---" ],
+			[ "P", ".--." ],
+			[ "Q", "--.-" ],
+			[ "R", ".-." ],
+			[ "S", "..." ],
+			[ "T", "-" ],
+			[ "U", "..-" ],
+			[ "V", "...-" ],
+			[ "W", ".--" ],
+			[ "X", "-..-" ],
+			[ "Y", "-.--" ],
+			[ "Z", "--.." ],
+
+			[ "0", "-----" ],
+			[ "1", ".----" ],
+			[ "2", "..---" ],
+			[ "3", "...--" ],
+			[ "4", "....-" ],
+			[ "5", "....." ],
+			[ "6", "-...." ],
+			[ "7", "--..." ],
+			[ "8", "---.." ],
+			[ "9", "----." ]
+		];
+
+		this.morseCodeSequencesByLetter =
+			new Map(letterMorseCodeSequencePairs);
+
+		this.lettersByMorseCodeSequence =
+			new Map(letterMorseCodeSequencePairs.map(x => [ x[1], x[0] ] ) );
+	}
+
+	decodeMorseCodeAsLetters(messageAsMorseCode)
+	{
+		var sequences = messageAsMorseCode.split(" ");
+		var sequencesInterspersedWithSpaces =
+			sequences.map(x => x == "" ? " " : x);
+		var sequencesDecoded =
+			sequencesInterspersedWithSpaces.map
+			(
+				x => 
+				{
+					return x.trim().length == 0 ? x : this.lettersByMorseCodeSequence.get(x)
+				}
+			);
+		var sequencesDecodedMinusNulls =
+			sequencesDecoded.filter(x => x != null);
+		var messageAsLetters = sequencesDecodedMinusNulls.join("");
+
+		while (messageAsLetters.indexOf("  ") >= 0)
+		{
+			messageAsLetters = messageAsLetters.split("  ").join(" ");
+		}
+		return messageAsLetters;
+	}
+
+	encodeLettersAsMorseCode(messageAsLetters)
+	{
+		var letters = messageAsLetters.toUpperCase().split("");
+		var lettersEncoded =
+			letters.map(x => this.morseCodeSequencesByLetter.get(x) );
+		var lettersEncodedMinusNulls =
+			lettersEncoded.filter(x => x != null);
+		var messageAsMorseCode = lettersEncodedMinusNulls.join(" ");
+		return messageAsMorseCode;
+	}
+}
+
+</script>
+
+</body>
+</html>
